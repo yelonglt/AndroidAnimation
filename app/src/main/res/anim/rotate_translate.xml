@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false"
+    android:fillAfter="true"
+     >
+
+   <rotate 
+        android:interpolator="@android:anim/accelerate_decelerate_interpolator"     
+        android:fromDegrees="0" 
+        android:toDegrees="+1080"         
+        android:pivotX="50%" 
+        android:pivotY="50%"         
+        android:duration="3000" />
+   
+    <translate  android:startOffset="2500" 
+        android:interpolator="@android:anim/decelerate_interpolator"
+        android:duration="300"
+        android:fromXDelta="0"
+        android:fromYDelta="0"
+        android:toXDelta="200"
+        android:toYDelta="200" />
+    
+    <alpha android:startOffset="2700" 
+        
+        android:interpolator="@android:anim/accelerate_interpolator"
+        android:duration="100"
+        android:fromAlpha="1.1"
+        android:toAlpha="0.0" />
+
+</set>
+
+<!-- 
+	如果在一个set标签中包含多个动画效果，如果想让这些动画效果共享一个Interpolator。
+	 android:shareInterpolator = "true"
+	 
+	 如果不想共享一个interpolator，则设置android:shareInterpolator="false"，并且需要在每一个动画效果处添加interpolator。
+	 
+ -->
