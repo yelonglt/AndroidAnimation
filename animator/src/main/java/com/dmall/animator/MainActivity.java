@@ -4,10 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -15,15 +19,29 @@ import android.widget.TextView;
  * 属性动画文件得放在res/animator目录
  */
 public class MainActivity extends AppCompatActivity {
+    public static final String TAG = "MainActivity";
 
     private TextView mTextView;
+
+    private RelativeLayout mLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView) findViewById(R.id.messageView);
+        mLayout = (RelativeLayout) findViewById(R.id.layoutHeight);
 
+        //采用ValueAnimator，监听动画过程，自己实现属性的改变
+        //performAnimate(mLayout, mLayout.getHeight(), 500);
+
+        //用一个类来包装原始对象，间接为其提供get和set方法
+        ViewWrapper wrapper = new ViewWrapper(mLayout);
+        ObjectAnimator.ofInt(wrapper, "height", mLayout.getHeight(), 500).setDuration(5000).start();
+
+    }
+
+    public void xmlAnimator() {
         //加载XML动画
         Animator animator = AnimatorInflater.loadAnimator(this, R.animator.animator_set);
         //将动画添加到某个对象上
@@ -101,5 +119,56 @@ public class MainActivity extends AppCompatActivity {
         //设置重复模式,只有两种重新播放和倒序播放
         animator.setRepeatMode(ValueAnimator.RESTART);
         animator.start();
+    }
+
+    /**
+     * 执行修改高度动画
+     *
+     * @param target   目标视图
+     * @param start    开始高度
+     * @param end      最终高度
+     * @param duration 动画持续时间
+     */
+    private void performAnimate(final View target, final int start, final int end, long duration) {
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(1, 100);
+
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            //持有一个IntEvaluator对象，方便下面估值的时候使用
+            private IntEvaluator mEvaluator = new IntEvaluator();
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                //获得当前动画的进度值，整型，1-100之间
+                int currentValue = (Integer) animator.getAnimatedValue();
+                Log.d(TAG, "current value: " + currentValue);
+
+                //计算当前进度占整个动画过程的比例，浮点型，0-1之间
+                float fraction = currentValue / 100f;
+
+                //直接调用整型估值器通过比例计算出宽度，然后给target设置高度
+                target.getLayoutParams().height = mEvaluator.evaluate(fraction, start, end);
+                target.requestLayout();
+            }
+        });
+
+        valueAnimator.setDuration(duration).start();
+    }
+
+    private static class ViewWrapper {
+        private View mTarget;
+
+        public ViewWrapper(View target) {
+            mTarget = target;
+        }
+
+        public int getHeight() {
+            return mTarget.getLayoutParams().height;
+        }
+
+        public void setHeight(int height) {
+            mTarget.getLayoutParams().height = height;
+            mTarget.requestLayout();
+        }
     }
 }
