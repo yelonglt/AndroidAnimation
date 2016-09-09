@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RelativeLayout mLayout;
 
+    private ImageView mImageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
         //用一个类来包装原始对象，间接为其提供get和set方法
         ViewWrapper wrapper = new ViewWrapper(mLayout);
         ObjectAnimator.ofInt(wrapper, "height", mLayout.getHeight(), 500).setDuration(5000).start();
+
+        mImageView = (ImageView) findViewById(R.id.shakeView);
+        mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AnimatorUtil.startShakeView(view, 1f, 1f, 5, 1000);
+            }
+        });
 
     }
 
